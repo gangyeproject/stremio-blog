@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getAllSlugs, getArticleBySlug, getCoverUrl, formatDate, renderContent } from '../lib/strapi.js';
+import { getAllSlugs, getArticleBySlug, getArticles, getCoverUrl, formatDate, renderContent } from '../lib/strapi.js';
 
 export async function getStaticPaths() {
   const slugs = await getAllSlugs();
@@ -13,6 +13,15 @@ const article = await getArticleBySlug(slug);
 if (!article) {
   return Astro.redirect('/');
 }
+
+// Get all articles for prev/next navigation
+const allArticles = await getArticles();
+const currentIndex = allArticles.findIndex(a => a.slug === slug);
+const prevArticle = currentIndex < allArticles.length - 1 ? allArticles[currentIndex + 1] : null;
+const nextArticle = currentIndex > 0 ? allArticles[currentIndex - 1] : null;
+
+// Get related articles (exclude current, max 3)
+const relatedArticles = allArticles.filter(a => a.slug !== slug).slice(0, 3);
 
 const coverUrl = getCoverUrl(article);
 const content = renderContent(article.content);
@@ -48,6 +57,37 @@ const content = renderContent(article.content);
 
       <div class="article__content" set:html={content}></div>
     </article>
+
+    <!-- Prev/Next Navigation -->
+    <nav class="article-nav">
+      {prevArticle ? (
+        <a href={`/blog/${prevArticle.slug}`} class="article-nav__link article-nav__prev">
+          <span class="article-nav__label">← Previous</span>
+          <span class="article-nav__title">{prevArticle.title}</span>
+        </a>
+      ) : <div></div>}
+      {nextArticle ? (
+        <a href={`/blog/${nextArticle.slug}`} class="article-nav__link article-nav__next">
+          <span class="article-nav__label">Next →</span>
+          <span class="article-nav__title">{nextArticle.title}</span>
+        </a>
+      ) : <div></div>}
+    </nav>
+
+    <!-- Related Articles -->
+    {relatedArticles.length > 0 && (
+      <section class="related-articles">
+        <h2>Related Articles</h2>
+        <div class="related-articles__grid">
+          {relatedArticles.map((related) => (
+            <a href={`/blog/${related.slug}`} class="related-card">
+              <h3>{related.title}</h3>
+              {related.summary && <p>{related.summary}</p>}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
   </div>
 </Layout>
 
@@ -169,6 +209,101 @@ const content = renderContent(article.content);
 
     .article__content {
       font-size: 1rem;
+    }
+  }
+
+  /* Prev/Next Navigation */
+  .article-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+  }
+
+  .article-nav__link {
+    flex: 1;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .article-nav__link:hover {
+    background: #eee;
+  }
+
+  .article-nav__prev {
+    text-align: left;
+  }
+
+  .article-nav__next {
+    text-align: right;
+  }
+
+  .article-nav__label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+  }
+
+  .article-nav__title {
+    display: block;
+    color: var(--text-color);
+    font-weight: 500;
+  }
+
+  /* Related Articles */
+  .related-articles {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+  }
+
+  .related-articles h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+  }
+
+  .related-articles__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .related-card {
+    padding: 1.25rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .related-card:hover {
+    background: #eee;
+    transform: translateY(-2px);
+  }
+
+  .related-card h3 {
+    font-size: 1rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+  }
+
+  .related-card p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    .article-nav {
+      flex-direction: column;
     }
   }
 </style>
