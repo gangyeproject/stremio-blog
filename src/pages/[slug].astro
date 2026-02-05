@@ -11,7 +11,7 @@ const { slug } = Astro.params;
 const article = await getArticleBySlug(slug);
 
 if (!article) {
-  return Astro.redirect('/blog');
+  return Astro.redirect('/');
 }
 
 const coverUrl = getCoverUrl(article);
@@ -30,7 +30,7 @@ const content = renderContent(article.content);
   }}
 >
   <div class="article-page">
-    <a href="/blog" class="back-link">← Back to Blog</a>
+    <a href="https://stremioaddonmanager.org/blog" class="back-link">← Back to Blog</a>
 
     <article class="article">
       <header class="article__header">
