@@ -17,7 +17,7 @@ const articles = await getArticles();
     ) : (
       <div class="blog-grid">
         {articles.map((article) => (
-          <a href={`/${article.slug}`} class="blog-card">
+          <a href={`/blog/${article.slug}`} class="blog-card">
             <div class="blog-card__image">
               {getCoverUrl(article) ? (
                 <img src={getCoverUrl(article)} alt={article.title} />
