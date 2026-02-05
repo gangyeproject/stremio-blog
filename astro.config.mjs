@@ -6,5 +6,6 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://stremioaddonmanager.org',
   base: '/blog',
+  trailingSlash: 'never',
   integrations: [sitemap()],
 });
