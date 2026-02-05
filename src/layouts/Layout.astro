@@ -11,7 +11,7 @@ export interface Props {
   };
 }
 
-const { title, description = "Tips, guides, and news about Stremio addons.", image, article } = Astro.props;
+const { title, description = "Troubleshooting, tips, and guides for Stremio addons.", image, article } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const isArticlePage = !!article;
 
@@ -19,8 +19,8 @@ const isArticlePage = !!article;
 const blogJsonLd = {
   "@context": "https://schema.org",
   "@type": "Blog",
-  "name": "Stremio Addon Manager Blog",
-  "description": "Tips, guides, and news about Stremio addons",
+  "name": "Stremio Addon Guides",
+  "description": "Troubleshooting, tips, and guides for Stremio addons",
   "url": "https://stremioaddonmanager.org/blog",
   "publisher": {
     "@type": "Organization",

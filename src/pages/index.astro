@@ -5,11 +5,11 @@ import { getArticles, getCoverUrl, formatDate } from '../lib/strapi.js';
 const articles = await getArticles();
 ---
 
-<Layout title="Blog - Stremio Addon Manager | Tips, Guides & News">
+<Layout title="Stremio Addon Guides & Troubleshooting | Stremio Addon Manager">
   <div class="blog-page">
     <div class="blog-header">
-      <h1>Blog</h1>
-      <p>Tips, guides, and news about Stremio addons</p>
+      <h1>Stremio Addon Guides</h1>
+      <p>Troubleshooting, tips, and guides for Stremio addons</p>
     </div>
 
     {articles.length === 0 ? (
