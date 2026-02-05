@@ -1,0 +1,329 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  article?: {
+    title: string;
+    summary?: string;
+    publishedAt: string;
+    slug: string;
+  };
+}
+
+const { title, description = "Tips, guides, and news about Stremio addons.", image, article } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const isArticlePage = !!article;
+
+// JSON-LD for Blog
+const blogJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "Stremio Addon Manager Blog",
+  "description": "Tips, guides, and news about Stremio addons",
+  "url": "https://stremioaddonmanager.org/blog",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Stremio Addon Manager",
+    "url": "https://stremioaddonmanager.org"
+  }
+};
+
+// JSON-LD for Article
+const articleJsonLd = article ? {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": article.title,
+  "description": article.summary || description,
+  "datePublished": article.publishedAt,
+  "url": `https://stremioaddonmanager.org/blog/${article.slug}`,
+  "image": image || undefined,
+  "author": {
+    "@type": "Organization",
+    "name": "Stremio Addon Manager"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Stremio Addon Manager",
+    "url": "https://stremioaddonmanager.org"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": `https://stremioaddonmanager.org/blog/${article.slug}`
+  }
+} : null;
+
+// Breadcrumb JSON-LD
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://stremioaddonmanager.org"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Blog",
+      "item": "https://stremioaddonmanager.org/blog"
+    },
+    ...(article ? [{
+      "@type": "ListItem",
+      "position": 3,
+      "name": article.title,
+      "item": `https://stremioaddonmanager.org/blog/${article.slug}`
+    }] : [])
+  ]
+};
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Stremio Addon Manager">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:type" content={isArticlePage ? "article" : "website"}>
+  <meta property="og:url" content={canonicalURL}>
+  <meta property="og:site_name" content="Stremio Addon Manager">
+  {image && <meta property="og:image" content={image} />}
+  {article && <meta property="article:published_time" content={article.publishedAt} />}
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={title}>
+  <meta name="twitter:description" content={description}>
+  {image && <meta name="twitter:image" content={image} />}
+
+  <link rel="canonical" href={canonicalURL}>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <!-- JSON-LD Structured Data -->
+  {!isArticlePage && (
+    <script type="application/ld+json" set:html={JSON.stringify(blogJsonLd)} />
+  )}
+  {articleJsonLd && (
+    <script type="application/ld+json" set:html={JSON.stringify(articleJsonLd)} />
+  )}
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar__inner">
+      <a class="navbar__brand" href="https://stremioaddonmanager.org/">
+        <div class="navbar__logo"></div>
+        Stremio Addon Manager
+      </a>
+      <div class="navbar__links">
+        <a href="https://stremioaddonmanager.org/" class="navbar__link">Home</a>
+        <a href="/blog" class="navbar__link navbar__link--active">Blog</a>
+      </div>
+      <button class="navbar__toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div class="navbar__mobile" id="mobileMenu">
+      <a href="https://stremioaddonmanager.org/">Home</a>
+      <a href="/blog">Blog</a>
+    </div>
+  </nav>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 Stremio Addon Manager. Not affiliated with Stremio.</p>
+  </footer>
+
+  <script>
+    document.getElementById('menuToggle')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu')?.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
+
+<style is:global>
+  :root {
+    --primary-color: #7b5bf5;
+    --primary-hover: #6a4be0;
+    --bg-color: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --text-color: #333333;
+    --text-muted: #555555;
+    --border-color: #e0e0e0;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: 15px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  a { color: var(--primary-color); text-decoration: none; }
+  a:hover { color: var(--primary-hover); text-decoration: underline; }
+
+  main {
+    flex: 1;
+    padding-top: 80px;
+  }
+
+  /* Navbar */
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .navbar__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .navbar__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    text-decoration: none;
+  }
+
+  .navbar__brand:hover { text-decoration: none; opacity: 0.8; }
+
+  .navbar__logo {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #7b5bf5, #5b8def);
+    border-radius: 8px;
+  }
+
+  .navbar__links {
+    display: flex;
+    gap: 8px;
+  }
+
+  .navbar__link {
+    padding: 8px 16px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .navbar__link:hover {
+    background: var(--bg-secondary);
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+
+  .navbar__link--active {
+    color: var(--primary-color);
+    background: rgba(123, 91, 245, 0.1);
+  }
+
+  .navbar__toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+  }
+
+  .navbar__toggle span {
+    width: 24px;
+    height: 2px;
+    background: var(--text-color);
+    border-radius: 2px;
+    transition: 0.3s;
+  }
+
+  .navbar__mobile {
+    display: none;
+    flex-direction: column;
+    background: var(--bg-color);
+    border-top: 1px solid var(--border-color);
+    padding: 16px 24px;
+    gap: 8px;
+  }
+
+  .navbar__mobile.open {
+    display: flex;
+  }
+
+  .navbar__mobile a {
+    padding: 12px 16px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 8px;
+  }
+
+  .navbar__mobile a:hover {
+    background: var(--bg-secondary);
+  }
+
+  /* Footer */
+  .footer {
+    background: var(--bg-secondary);
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .footer p {
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .navbar__links { display: none; }
+    .navbar__toggle { display: flex; }
+    .navbar__brand { font-size: 1rem; }
+  }
+</style>
