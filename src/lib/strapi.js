@@ -4,18 +4,20 @@ const STRAPI_URL = 'https://admin.stremioaddonmanager.org';
 const SITE_DOMAIN = 'stremioaddonmanager.org';
 
 // Configure marked to add nofollow to external links
-const renderer = new marked.Renderer();
-const originalLinkRenderer = renderer.link.bind(renderer);
+const renderer = {
+  link(token) {
+    const href = token.href || '';
+    const title = token.title ? ` title="${token.title}"` : '';
+    const text = token.text || '';
 
-renderer.link = function(href, title, text) {
-  const html = originalLinkRenderer(href, title, text);
-  if (href && !href.includes(SITE_DOMAIN) && href.startsWith('http')) {
-    return html.replace('<a ', '<a rel="nofollow" target="_blank" ');
+    if (href && !href.includes(SITE_DOMAIN) && href.startsWith('http')) {
+      return `<a href="${href}" rel="nofollow" target="_blank"${title}>${text}</a>`;
+    }
+    return `<a href="${href}"${title}>${text}</a>`;
   }
-  return html;
 };
 
-marked.setOptions({ renderer });
+marked.use({ renderer });
 
 export async function getArticles() {
   const res = await fetch(`${STRAPI_URL}/api/articles?populate=cover&sort=createdAt:desc`);
