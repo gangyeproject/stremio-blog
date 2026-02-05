@@ -1,6 +1,21 @@
 import { marked } from 'marked';
 
 const STRAPI_URL = 'https://admin.stremioaddonmanager.org';
+const SITE_DOMAIN = 'stremioaddonmanager.org';
+
+// Configure marked to add nofollow to external links
+const renderer = new marked.Renderer();
+const originalLinkRenderer = renderer.link.bind(renderer);
+
+renderer.link = function(href, title, text) {
+  const html = originalLinkRenderer(href, title, text);
+  if (href && !href.includes(SITE_DOMAIN) && href.startsWith('http')) {
+    return html.replace('<a ', '<a rel="nofollow" target="_blank" ');
+  }
+  return html;
+};
+
+marked.setOptions({ renderer });
 
 export async function getArticles() {
   const res = await fetch(`${STRAPI_URL}/api/articles?populate=cover&sort=createdAt:desc`);
