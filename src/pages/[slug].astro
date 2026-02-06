@@ -38,64 +38,74 @@ const content = renderContent(article.content);
     slug: article.slug
   }}
 >
-  <div class="article-page">
-    <a href="https://stremioaddonmanager.org/blog" class="back-link">← Back to Blog</a>
+  <div class="article-layout">
+    <div class="article-main">
+      <a href="https://stremioaddonmanager.org/blog" class="back-link">← Back to Blog</a>
 
-    <article class="article">
-      <header class="article__header">
-        <h1>{article.title}</h1>
-        <div class="article__meta">
-          <span class="article__date">{formatDate(article.publishedAt)}</span>
-        </div>
-      </header>
+      <article class="article">
+        <header class="article__header">
+          <h1>{article.title}</h1>
+          <div class="article__meta">
+            <span class="article__date">{formatDate(article.publishedAt)}</span>
+          </div>
+        </header>
 
-      {coverUrl && (
-        <div class="article__cover">
-          <img src={coverUrl} alt={article.title} />
-        </div>
-      )}
+        {coverUrl && (
+          <div class="article__cover">
+            <img src={coverUrl} alt={article.title} />
+          </div>
+        )}
 
-      <div class="article__content" set:html={content}></div>
-    </article>
+        <div class="article__content" set:html={content}></div>
+      </article>
 
-    <!-- Prev/Next Navigation -->
-    <nav class="article-nav">
-      {prevArticle ? (
-        <a href={`/blog/${prevArticle.slug}`} class="article-nav__link article-nav__prev">
-          <span class="article-nav__label">← Previous</span>
-          <span class="article-nav__title">{prevArticle.title}</span>
-        </a>
-      ) : <div></div>}
-      {nextArticle ? (
-        <a href={`/blog/${nextArticle.slug}`} class="article-nav__link article-nav__next">
-          <span class="article-nav__label">Next →</span>
-          <span class="article-nav__title">{nextArticle.title}</span>
-        </a>
-      ) : <div></div>}
-    </nav>
+      <!-- Prev/Next Navigation -->
+      <nav class="article-nav">
+        {prevArticle ? (
+          <a href={`/blog/${prevArticle.slug}`} class="article-nav__link article-nav__prev">
+            <span class="article-nav__label">← Previous</span>
+            <span class="article-nav__title">{prevArticle.title}</span>
+          </a>
+        ) : <div></div>}
+        {nextArticle ? (
+          <a href={`/blog/${nextArticle.slug}`} class="article-nav__link article-nav__next">
+            <span class="article-nav__label">Next →</span>
+            <span class="article-nav__title">{nextArticle.title}</span>
+          </a>
+        ) : <div></div>}
+      </nav>
+    </div>
 
-    <!-- Related Articles -->
+    <!-- Sidebar: Related Articles -->
     {relatedArticles.length > 0 && (
-      <section class="related-articles">
-        <h2>Related Articles</h2>
-        <div class="related-articles__grid">
-          {relatedArticles.map((related) => (
-            <a href={`/blog/${related.slug}`} class="related-card">
-              <h3>{related.title}</h3>
-              {related.summary && <p>{related.summary}</p>}
-            </a>
-          ))}
+      <aside class="article-sidebar">
+        <div class="sidebar-sticky">
+          <h3>Related Articles</h3>
+          <div class="sidebar-articles">
+            {relatedArticles.map((related) => (
+              <a href={`/blog/${related.slug}`} class="sidebar-card">
+                <span class="sidebar-card__title">{related.title}</span>
+              </a>
+            ))}
+          </div>
         </div>
-      </section>
+      </aside>
     )}
   </div>
 </Layout>
 
 <style>
-  .article-page {
-    max-width: 800px;
+  .article-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 2rem;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 2rem 1rem;
+  }
+
+  .article-main {
+    min-width: 0;
   }
 
   .back-link {
@@ -232,6 +242,15 @@ const content = renderContent(article.content);
     max-width: 200px;
   }
 
+  .article__content :global(video) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.5rem auto;
+    display: block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
   @media (max-width: 768px) {
     .article__header h1 {
       font-size: 1.75rem;
@@ -287,53 +306,64 @@ const content = renderContent(article.content);
   }
 
   /* Related Articles */
-  .related-articles {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid #eee;
+  .article-sidebar {
+    position: relative;
   }
 
-  .related-articles h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+  .sidebar-sticky {
+    position: sticky;
+    top: 80px;
+  }
+
+  .sidebar-sticky h3 {
+    font-size: 1rem;
+    margin: 0 0 1rem 0;
     color: var(--text-color);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
   }
 
-  .related-articles__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
+  .sidebar-articles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
-  .related-card {
-    padding: 1.25rem;
+  .sidebar-card {
+    display: block;
+    padding: 0.75rem;
     background: #f5f5f5;
     border-radius: 8px;
     text-decoration: none;
-    transition: background 0.2s, transform 0.2s;
+    transition: background 0.2s;
   }
 
-  .related-card:hover {
+  .sidebar-card:hover {
     background: #eee;
-    transform: translateY(-2px);
   }
 
-  .related-card h3 {
-    font-size: 1rem;
-    margin: 0 0 0.5rem 0;
-    color: var(--text-color);
-  }
-
-  .related-card p {
+  .sidebar-card__title {
     font-size: 0.9rem;
-    color: var(--text-muted);
-    margin: 0;
-    line-height: 1.5;
+    color: var(--text-color);
+    font-weight: 500;
+    line-height: 1.4;
   }
 
   @media (max-width: 768px) {
     .article-nav {
       flex-direction: column;
+    }
+
+    .article-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .article-sidebar {
+      order: -1;
+    }
+
+    .sidebar-sticky {
+      position: static;
     }
   }
 </style>
