@@ -368,3 +368,118 @@ const content = renderContent(article.content);
     }
   }
 </style>
+
+<!-- Image Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox__close" id="lightboxClose">&times;</button>
+  <img class="lightbox__img" id="lightboxImg" src="" alt="" />
+</div>
+
+<style>
+  .lightbox {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .lightbox.open {
+    display: flex;
+  }
+
+  .lightbox__img {
+    max-width: 95%;
+    max-height: 95%;
+    object-fit: contain;
+  }
+
+  .lightbox__close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 2.5rem;
+    color: #fff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .article__content :global(.img-wrapper) {
+    position: relative;
+    display: inline-block;
+    cursor: zoom-in;
+  }
+
+  .article__content :global(.img-zoom-icon) {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    pointer-events: none;
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .article__content :global(.img-zoom-icon) {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxClose = document.getElementById('lightboxClose');
+    const content = document.querySelector('.article__content');
+
+    if (!content) return;
+
+    // Wrap images with zoom icon
+    content.querySelectorAll('img').forEach(img => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'img-wrapper';
+      img.parentNode.insertBefore(wrapper, img);
+      wrapper.appendChild(img);
+
+      const zoomIcon = document.createElement('span');
+      zoomIcon.className = 'img-zoom-icon';
+      zoomIcon.textContent = '🔍 Tap to zoom';
+      wrapper.appendChild(zoomIcon);
+
+      wrapper.addEventListener('click', () => {
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        lightbox.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    // Close lightbox
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // ESC key to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  });
+</script>
