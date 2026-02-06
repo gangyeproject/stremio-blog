@@ -215,7 +215,21 @@ const content = renderContent(article.content);
     max-width: 100%;
     height: auto;
     border-radius: 8px;
-    margin: 1.5rem 0;
+    margin: 1.5rem auto;
+    display: block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .article__content :global(img[alt*="screenshot"]),
+  .article__content :global(img[alt*="Screenshot"]) {
+    max-width: 600px;
+  }
+
+  .article__content :global(img[alt*="icon"]),
+  .article__content :global(img[alt*="Icon"]),
+  .article__content :global(img[alt*="logo"]),
+  .article__content :global(img[alt*="Logo"]) {
+    max-width: 200px;
   }
 
   @media (max-width: 768px) {
