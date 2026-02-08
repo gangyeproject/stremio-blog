@@ -2,17 +2,26 @@
 import Layout from '../../layouts/Layout.astro';
 import { getArticles, getCoverUrl, formatDate } from '../../lib/strapi.js';
 
-const ARTICLES_PER_PAGE = 6;
-
 export async function getStaticPaths() {
-  const allArticles = await getArticles();
-  const totalPages = Math.ceil(allArticles.length / ARTICLES_PER_PAGE);
+  const ARTICLES_PER_PAGE = 6;
+  try {
+    const allArticles = await getArticles();
+    const totalPages = Math.ceil(allArticles.length / ARTICLES_PER_PAGE);
 
-  return Array.from({ length: totalPages - 1 }, (_, i) => ({
-    params: { page: String(i + 2) }
-  }));
+    if (totalPages <= 1) {
+      return [];
+    }
+
+    return Array.from({ length: totalPages - 1 }, (_, i) => ({
+      params: { page: String(i + 2) }
+    }));
+  } catch (error) {
+    console.error('Failed to fetch articles for pagination:', error);
+    return [];
+  }
 }
 
+const ARTICLES_PER_PAGE = 6;
 const { page } = Astro.params;
 const currentPage = parseInt(page);
 const allArticles = await getArticles();
