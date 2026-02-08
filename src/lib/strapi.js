@@ -34,7 +34,7 @@ export async function getArticleBySlug(slug) {
 export async function getAllSlugs() {
   const res = await fetch(`${STRAPI_URL}/api/articles?fields[0]=slug`);
   const data = await res.json();
-  return data.data?.map(article => article.slug) || [];
+  return data.data?.map(article => article.slug).filter(slug => slug) || [];
 }
 
 export function getCoverUrl(article) {
