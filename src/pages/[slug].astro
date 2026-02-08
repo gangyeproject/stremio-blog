@@ -50,12 +50,6 @@ const content = renderContent(article.content);
           </div>
         </header>
 
-        {coverUrl && (
-          <div class="article__cover">
-            <img src={coverUrl} alt={article.title} />
-          </div>
-        )}
-
         <div class="article__content" set:html={content}></div>
       </article>
 
