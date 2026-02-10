@@ -17,7 +17,7 @@ const addons = await getAddons();
     ) : (
       <div class="addons-grid">
         {addons.map((addon) => (
-          <a href={`/addons/${addon.slug}`} class="addon-card">
+          <a href={`/blog/addons/${addon.slug}`} class="addon-card">
             <div class="addon-card__image">
               {getCoverUrl(addon) ? (
                 <img src={getCoverUrl(addon)} alt={addon.title} />

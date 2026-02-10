@@ -1,0 +1,17 @@
+ building client (vite) 
+02:28:34 [vite] transforming...
+02:28:34 [vite] ✓ 2 modules transformed.
+02:28:34 [vite] rendering chunks...
+02:28:34 [vite] ✓ built in 28ms
+ generating static routes 
+02:28:34 ▶ src/pages/page/[page].astro
+02:28:35 [ERROR] [build] Failed to call getStaticPaths for src/pages/page/[page].astro
+ARTICLES_PER_PAGE is not defined
+  Location:
+    /vercel/path0/node_modules/astro/dist/core/render/route-cache.js:29:17
+  Stack trace:
+    at Module.getStaticPaths (file:///vercel/path0/dist/pages/page/_page_.astro.mjs?time=1770517714588:10:53)
+    at async callGetStaticPaths (file:///vercel/path0/node_modules/astro/dist/core/render/route-cache.js:29:17)
+    at async generatePage (file:///vercel/path0/node_modules/astro/dist/core/build/generate.js:181:19)
+    at async staticBuild (file:///vercel/path0/node_modules/astro/dist/core/build/static-build.js:87:5)
+    at async AstroBuilder.run (file:///vercel/path0/node_modules/astro/dist/core/build/index.js:188:7)
