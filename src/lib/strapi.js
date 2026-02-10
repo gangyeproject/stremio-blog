@@ -45,16 +45,16 @@ export async function getAddons() {
   return data.data || [];
 }
 
-export async function getAddonBySlug(slug) {
-  const res = await fetch(`${STRAPI_URL}/api/addons?filters[slug][$eq]=${slug}&populate=cover`);
+export async function getAddonBySlug(sulg) {
+  const res = await fetch(`${STRAPI_URL}/api/addons?filters[sulg][$eq]=${sulg}&populate=cover`);
   const data = await res.json();
   return data.data?.[0] || null;
 }
 
 export async function getAllAddonSlugs() {
-  const res = await fetch(`${STRAPI_URL}/api/addons?fields[0]=slug`);
+  const res = await fetch(`${STRAPI_URL}/api/addons?fields[0]=sulg`);
   const data = await res.json();
-  return data.data?.map(addon => addon.slug).filter(slug => slug) || [];
+  return data.data?.map(addon => addon.sulg).filter(sulg => sulg) || [];
 }
 
 // Shared utilities
