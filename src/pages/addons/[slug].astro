@@ -67,10 +67,6 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
       </div>
     )}
 
-    {coverUrl && (
-      <div class="addon-article__cover">
-        <img src={coverUrl} alt={addon.title} />
-      </div>
     )}
 
     <div class="addon-article__content" set:html={renderContent(addon.content)} />
