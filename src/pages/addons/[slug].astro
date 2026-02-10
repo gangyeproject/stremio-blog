@@ -1,0 +1,161 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getAddonBySlug, getAllAddonSlugs, getCoverUrl, formatDate, renderContent } from '../../lib/strapi.js';
+
+export async function getStaticPaths() {
+  const slugs = await getAllAddonSlugs();
+  return slugs.map(slug => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const addon = await getAddonBySlug(slug);
+
+if (!addon) {
+  return Astro.redirect('/addons');
+}
+
+const coverUrl = getCoverUrl(addon);
+---
+
+<Layout 
+  title={`${addon.title} | Stremio Addon Manager`}
+  description={addon.summary || `Learn about ${addon.title} addon for Stremio.`}
+  image={coverUrl}
+  article={{
+    title: addon.title,
+    summary: addon.summary,
+    publishedAt: addon.publishedAt,
+    slug: addon.slug
+  }}
+>
+  <article class="addon-article">
+    <header class="addon-article__header">
+      <a href="/addons" class="addon-article__back">← Back to Addons</a>
+      <h1>{addon.title}</h1>
+      <div class="addon-article__meta">
+        <time datetime={addon.publishedAt}>{formatDate(addon.publishedAt)}</time>
+      </div>
+    </header>
+
+    {coverUrl && (
+      <div class="addon-article__cover">
+        <img src={coverUrl} alt={addon.title} />
+      </div>
+    )}
+
+    <div class="addon-article__content" set:html={renderContent(addon.content)} />
+  </article>
+</Layout>
+
+<style>
+  .addon-article {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .addon-article__back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .addon-article__back:hover {
+    text-decoration: underline;
+  }
+
+  .addon-article__header {
+    margin-bottom: 2rem;
+  }
+
+  .addon-article__header h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+  }
+
+  .addon-article__meta {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .addon-article__cover {
+    margin-bottom: 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .addon-article__cover img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .addon-article__content {
+    line-height: 1.8;
+  }
+
+  .addon-article__content :global(h2) {
+    font-size: 1.75rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+  }
+
+  .addon-article__content :global(h3) {
+    font-size: 1.4rem;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-color);
+  }
+
+  .addon-article__content :global(p) {
+    margin-bottom: 1.5rem;
+  }
+
+  .addon-article__content :global(ul),
+  .addon-article__content :global(ol) {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .addon-article__content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .addon-article__content :global(pre) {
+    background: #f5f5f5;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+
+  .addon-article__content :global(code) {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+  }
+
+  .addon-article__content :global(blockquote) {
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: var(--text-muted);
+  }
+
+  .addon-article__content :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .addon-article__header h1 {
+      font-size: 2rem;
+    }
+  }
+</style>

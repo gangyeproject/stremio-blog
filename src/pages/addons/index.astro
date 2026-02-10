@@ -1,0 +1,154 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getAddons, getCoverUrl, formatDate } from '../../lib/strapi.js';
+
+const addons = await getAddons();
+---
+
+<Layout title="Stremio Addons | Stremio Addon Manager" description="Browse and discover the best Stremio addons for movies, TV shows, and more.">
+  <div class="addons-page">
+    <div class="addons-header">
+      <h1>Stremio Addons</h1>
+      <p>Browse and discover the best Stremio addons</p>
+    </div>
+
+    {addons.length === 0 ? (
+      <div class="addons-empty">No addons yet. Check back soon!</div>
+    ) : (
+      <div class="addons-grid">
+        {addons.map((addon) => (
+          <a href={`/addons/${addon.slug}`} class="addon-card">
+            <div class="addon-card__image">
+              {getCoverUrl(addon) ? (
+                <img src={getCoverUrl(addon)} alt={addon.title} />
+              ) : (
+                <div class="addon-card__placeholder">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                  </svg>
+                </div>
+              )}
+            </div>
+            <div class="addon-card__content">
+              <h2>{addon.title}</h2>
+              {addon.summary && <p>{addon.summary}</p>}
+              <span class="addon-card__date">{formatDate(addon.publishedAt)}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .addons-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .addons-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .addons-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+  }
+
+  .addons-header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+
+  .addons-empty {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+  }
+
+  .addons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .addon-card {
+    background: var(--bg-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--border-color);
+  }
+
+  .addon-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    text-decoration: none;
+  }
+
+  .addon-card__image {
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .addon-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .addon-card__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .addon-card__content {
+    padding: 1.25rem;
+  }
+
+  .addon-card__content h2 {
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+  }
+
+  .addon-card__content p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin: 0 0 1rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .addon-card__date {
+    font-size: 0.85rem;
+    color: #999;
+  }
+
+  @media (max-width: 640px) {
+    .addons-header h1 {
+      font-size: 2rem;
+    }
+
+    .addons-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

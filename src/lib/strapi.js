@@ -19,6 +19,7 @@ const renderer = {
 
 marked.use({ renderer });
 
+// Articles API
 export async function getArticles() {
   const res = await fetch(`${STRAPI_URL}/api/articles?populate=cover&sort=createdAt:desc`);
   const data = await res.json();
@@ -37,8 +38,28 @@ export async function getAllSlugs() {
   return data.data?.map(article => article.slug).filter(slug => slug) || [];
 }
 
-export function getCoverUrl(article) {
-  const cover = article?.cover;
+// Addons API
+export async function getAddons() {
+  const res = await fetch(`${STRAPI_URL}/api/addons?populate=cover&sort=createdAt:desc`);
+  const data = await res.json();
+  return data.data || [];
+}
+
+export async function getAddonBySlug(slug) {
+  const res = await fetch(`${STRAPI_URL}/api/addons?filters[slug][$eq]=${slug}&populate=cover`);
+  const data = await res.json();
+  return data.data?.[0] || null;
+}
+
+export async function getAllAddonSlugs() {
+  const res = await fetch(`${STRAPI_URL}/api/addons?fields[0]=slug`);
+  const data = await res.json();
+  return data.data?.map(addon => addon.slug).filter(slug => slug) || [];
+}
+
+// Shared utilities
+export function getCoverUrl(item) {
+  const cover = item?.cover;
   if (!cover) return null;
   const url = cover.url;
   return url.startsWith('http') ? url : `${STRAPI_URL}${url}`;
