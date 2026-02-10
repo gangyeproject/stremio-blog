@@ -16,6 +16,11 @@ if (!addon) {
 
 const coverUrl = getCoverUrl(addon);
 
+// Generate install URLs from manifestUrl
+const manifestUrl = addon.manifestUrl;
+const appInstallUrl = manifestUrl ? manifestUrl.replace('https://', 'stremio://') : null;
+const webInstallUrl = manifestUrl ? `https://web.stremio.com/#/addons?addon=${encodeURIComponent(manifestUrl)}` : null;
+
 // Get related addons (exclude current)
 const allAddons = await getAddons();
 const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
@@ -40,6 +45,27 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
         <time datetime={addon.publishedAt}>{formatDate(addon.publishedAt)}</time>
       </div>
     </header>
+
+    {manifestUrl && (
+      <div class="install-buttons">
+        <a href={appInstallUrl} class="install-btn install-btn--app">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Install on App
+        </a>
+        <a href={webInstallUrl} target="_blank" rel="noopener" class="install-btn install-btn--web">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Install on Web
+        </a>
+      </div>
+    )}
 
     {coverUrl && (
       <div class="addon-article__cover">
@@ -80,191 +106,45 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
 </Layout>
 
 <style>
-  .addon-article {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-  }
-
-  .addon-article__back {
-    display: inline-block;
-    margin-bottom: 1.5rem;
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .addon-article__back:hover {
-    text-decoration: underline;
-  }
-
-  .addon-article__header {
-    margin-bottom: 2rem;
-  }
-
-  .addon-article__header h1 {
-    font-size: 2.5rem;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-    color: var(--text-color);
-  }
-
-  .addon-article__meta {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-  }
-
-  .addon-article__cover {
-    margin-bottom: 2rem;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .addon-article__cover img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  .addon-article__content {
-    line-height: 1.8;
-  }
-
-  .addon-article__content :global(h2) {
-    font-size: 1.75rem;
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-    color: var(--text-color);
-  }
-
-  .addon-article__content :global(h3) {
-    font-size: 1.4rem;
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
-    color: var(--text-color);
-  }
-
-  .addon-article__content :global(p) {
-    margin-bottom: 1.5rem;
-  }
-
-  .addon-article__content :global(ul),
-  .addon-article__content :global(ol) {
-    margin-bottom: 1.5rem;
-    padding-left: 1.5rem;
-  }
-
-  .addon-article__content :global(li) {
-    margin-bottom: 0.5rem;
-  }
-
-  .addon-article__content :global(pre) {
-    background: #f5f5f5;
-    padding: 1rem;
-    border-radius: 8px;
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
-  }
-
-  .addon-article__content :global(code) {
-    font-family: 'Fira Code', monospace;
-    font-size: 0.9rem;
-  }
-
-  .addon-article__content :global(blockquote) {
-    border-left: 4px solid var(--primary-color);
-    padding-left: 1rem;
-    margin: 1.5rem 0;
-    color: var(--text-muted);
-  }
-
-  .addon-article__content :global(img) {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin: 1.5rem 0;
-  }
-
-  /* Related Addons */
-  .related-addons {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem 1rem 3rem;
-    border-top: 1px solid var(--border-color);
-  }
-
-  .related-addons h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: var(--text-color);
-  }
-
-  .related-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-
-  .related-card {
-    background: var(--bg-color);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
-    text-decoration: none;
-    color: inherit;
-    border: 1px solid var(--border-color);
-  }
-
-  .related-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-    text-decoration: none;
-  }
-
-  .related-card__image {
-    width: 100%;
-    height: 120px;
-    overflow: hidden;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-
-  .related-card__image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .related-card__placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255,255,255,0.7);
-  }
-
-  .related-card__content {
-    padding: 1rem;
-  }
-
-  .related-card__content h3 {
-    font-size: 0.95rem;
-    margin: 0;
-    color: var(--text-color);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
+  .addon-article { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+  .addon-article__back { display: inline-block; margin-bottom: 1.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
+  .addon-article__back:hover { text-decoration: underline; }
+  .addon-article__header { margin-bottom: 1.5rem; }
+  .addon-article__header h1 { font-size: 2.5rem; line-height: 1.2; margin-bottom: 1rem; color: var(--text-color); }
+  .addon-article__meta { color: var(--text-muted); font-size: 0.95rem; }
+  .install-buttons { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .install-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 1rem; text-decoration: none; transition: all 0.2s; }
+  .install-btn:hover { text-decoration: none; transform: translateY(-2px); }
+  .install-btn--app { background: linear-gradient(135deg, #7b5bf5 0%, #6a4be0 100%); color: #fff; box-shadow: 0 4px 14px rgba(123, 91, 245, 0.4); }
+  .install-btn--app:hover { box-shadow: 0 6px 20px rgba(123, 91, 245, 0.5); color: #fff; }
+  .install-btn--web { background: #fff; color: var(--primary-color); border: 2px solid var(--primary-color); }
+  .install-btn--web:hover { background: var(--primary-color); color: #fff; }
+  .addon-article__cover { margin-bottom: 2rem; border-radius: 12px; overflow: hidden; }
+  .addon-article__cover img { width: 100%; height: auto; display: block; }
+  .addon-article__content { line-height: 1.8; }
+  .addon-article__content :global(h2) { font-size: 1.75rem; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--text-color); }
+  .addon-article__content :global(h3) { font-size: 1.4rem; margin-top: 2rem; margin-bottom: 0.75rem; color: var(--text-color); }
+  .addon-article__content :global(p) { margin-bottom: 1.5rem; }
+  .addon-article__content :global(ul), .addon-article__content :global(ol) { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+  .addon-article__content :global(li) { margin-bottom: 0.5rem; }
+  .addon-article__content :global(pre) { background: #f5f5f5; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1.5rem; }
+  .addon-article__content :global(code) { font-family: monospace; font-size: 0.9rem; }
+  .addon-article__content :global(blockquote) { border-left: 4px solid var(--primary-color); padding-left: 1rem; margin: 1.5rem 0; color: var(--text-muted); }
+  .addon-article__content :global(img) { max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0; }
+  .related-addons { max-width: 800px; margin: 0 auto; padding: 2rem 1rem 3rem; border-top: 1px solid var(--border-color); }
+  .related-addons h2 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--text-color); }
+  .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .related-card { background: var(--bg-color); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; border: 1px solid var(--border-color); }
+  .related-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); text-decoration: none; }
+  .related-card__image { width: 100%; height: 120px; overflow: hidden; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+  .related-card__image img { width: 100%; height: 100%; object-fit: cover; }
+  .related-card__placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.7); }
+  .related-card__content { padding: 1rem; }
+  .related-card__content h3 { font-size: 0.95rem; margin: 0; color: var(--text-color); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   @media (max-width: 640px) {
-    .addon-article__header h1 {
-      font-size: 2rem;
-    }
-
-    .related-grid {
-      grid-template-columns: 1fr;
-    }
+    .addon-article__header h1 { font-size: 2rem; }
+    .install-buttons { flex-direction: column; }
+    .install-btn { justify-content: center; }
+    .related-grid { grid-template-columns: 1fr; }
   }
 </style>
