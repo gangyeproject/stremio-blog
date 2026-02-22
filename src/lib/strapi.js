@@ -40,9 +40,16 @@ export async function getAllSlugs() {
 
 // Addons API
 export async function getAddons() {
-  const res = await fetch(`${STRAPI_URL}/api/addons?populate=cover&sort=createdAt:desc`);
-  const data = await res.json();
-  return data.data || [];
+  try {
+    const res = await fetch(`${STRAPI_URL}/api/addons?populate=cover&sort=createdAt:desc`);
+    const text = await res.text();
+    console.log('[getAddons] status:', res.status, 'body preview:', text.substring(0, 200));
+    const data = JSON.parse(text);
+    return data.data || [];
+  } catch (e) {
+    console.error('[getAddons] error:', e);
+    return [];
+  }
 }
 
 export async function getAddonBySlug(sulg) {
@@ -61,7 +68,12 @@ export async function getAllAddonSlugs() {
 export function getCoverUrl(item) {
   const cover = item?.cover;
   if (!cover) return null;
+  // support both text (string URL) and media object
+  if (typeof cover === 'string') {
+    return cover.startsWith('http') ? cover : `${STRAPI_URL}${cover}`;
+  }
   const url = cover.url;
+  if (!url) return null;
   return url.startsWith('http') ? url : `${STRAPI_URL}${url}`;
 }
 
