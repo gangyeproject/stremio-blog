@@ -2,6 +2,7 @@ import { marked } from 'marked';
 
 const STRAPI_URL = 'https://admin.stremioaddonmanager.org';
 const SITE_DOMAIN = 'stremioaddonmanager.org';
+const PAGE_SIZE = 100;
 
 // Configure marked to add nofollow to external links
 const renderer = {
@@ -21,19 +22,19 @@ marked.use({ renderer });
 
 // Articles API
 export async function getArticles() {
-  const res = await fetch(`${STRAPI_URL}/api/articles?populate=cover&sort=createdAt:desc`);
+  const res = await fetch(`${STRAPI_URL}/api/articles?populate=cover&sort=createdAt:desc&pagination[pageSize]=${PAGE_SIZE}`);
   const data = await res.json();
   return data.data || [];
 }
 
 export async function getArticleBySlug(slug) {
-  const res = await fetch(`${STRAPI_URL}/api/articles?filters[slug][$eq]=${slug}&populate=cover`);
+  const res = await fetch(`${STRAPI_URL}/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=cover`);
   const data = await res.json();
   return data.data?.[0] || null;
 }
 
 export async function getAllSlugs() {
-  const res = await fetch(`${STRAPI_URL}/api/articles?fields[0]=slug`);
+  const res = await fetch(`${STRAPI_URL}/api/articles?fields[0]=slug&pagination[pageSize]=${PAGE_SIZE}`);
   const data = await res.json();
   return data.data?.map(article => article.slug).filter(slug => slug) || [];
 }
@@ -41,7 +42,7 @@ export async function getAllSlugs() {
 // Addons API
 export async function getAddons() {
   try {
-    const res = await fetch(`${STRAPI_URL}/api/addons?populate=cover&sort=createdAt:desc`);
+    const res = await fetch(`${STRAPI_URL}/api/addons?populate=cover&sort=createdAt:desc&pagination[pageSize]=${PAGE_SIZE}`);
     const text = await res.text();
     console.log('[getAddons] status:', res.status, 'body preview:', text.substring(0, 200));
     const data = JSON.parse(text);
@@ -53,13 +54,13 @@ export async function getAddons() {
 }
 
 export async function getAddonBySlug(sulg) {
-  const res = await fetch(`${STRAPI_URL}/api/addons?filters[sulg][$eq]=${sulg}&populate=cover`);
+  const res = await fetch(`${STRAPI_URL}/api/addons?filters[sulg][$eq]=${encodeURIComponent(sulg)}&populate=cover`);
   const data = await res.json();
   return data.data?.[0] || null;
 }
 
 export async function getAllAddonSlugs() {
-  const res = await fetch(`${STRAPI_URL}/api/addons?fields[0]=sulg`);
+  const res = await fetch(`${STRAPI_URL}/api/addons?fields[0]=sulg&pagination[pageSize]=${PAGE_SIZE}`);
   const data = await res.json();
   return data.data?.map(addon => addon.sulg).filter(sulg => sulg) || [];
 }
