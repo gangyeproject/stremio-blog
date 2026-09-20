@@ -13,13 +13,12 @@ const addons = await getAddons();
       <p>Browse and discover the best Stremio addons</p>
     </div>
 
-    <AdSlot slot="7278792318" format="fluid" layoutKey="-fb+5w+4e-db+86" className="listing-ad" />
 
     {addons.length === 0 ? (
       <div class="addons-empty">No addons yet. Check back soon!</div>
-    ) : (
+    ) : (<>
       <div class="addons-grid">
-        {addons.map((addon) => (
+        {addons.map((addon, index) => (<>
           <a href={`/blog/addons/${addon.sulg}`} class="addon-card">
             <div class="addon-card__image">
               {getCoverUrl(addon) ? (
@@ -40,10 +39,11 @@ const addons = await getAddons();
               <span class="addon-card__date">{formatDate(addon.publishedAt)}</span>
             </div>
           </a>
-        ))}
+          {index === 5 && addons.length >= 9 && <AdSlot adSlot="7278792318" format="fluid" layoutKey="-fb+5w+4e-db+86" className="listing-ad" />}
+        </>))}
       </div>
-      <AdSlot slot="3066421469" format="autorelaxed" className="listing-ad" />
-    )}
+      {addons.length >= 18 && <AdSlot adSlot="3066421469" format="autorelaxed" className="listing-ad" />}
+    </>)}
   </div>
 </Layout>
 

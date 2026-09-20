@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AdSlot from '../components/AdSlot.astro';
+import { splitAddonContent } from '../lib/addon-ad.js';
 import { getAllSlugs, getArticleBySlug, getArticles, getCoverUrl, formatDate, renderContent } from '../lib/strapi.js';
 
 export async function getStaticPaths() {
@@ -25,7 +26,7 @@ const nextArticle = currentIndex > 0 ? allArticles[currentIndex - 1] : null;
 const relatedArticles = allArticles.filter(a => a.slug !== slug).slice(0, 3);
 
 const coverUrl = getCoverUrl(article);
-const content = renderContent(article.content);
+const contentParts = splitAddonContent(article.content || '');
 ---
 
 <Layout
@@ -51,9 +52,11 @@ const content = renderContent(article.content);
           </div>
         </header>
 
-        <AdSlot slot="5087719225" format="fluid" layout="in-article" className="article-ad" />
-
-        <div class="article__content" set:html={content}></div>
+        <div class="article__content">
+          <Fragment set:html={renderContent(contentParts[0])} />
+          <AdSlot adSlot="5087719225" format="fluid" layout="in-article" className="article-ad" />
+          {contentParts.length === 2 && <Fragment set:html={renderContent(contentParts[1])} />}
+        </div>
       </article>
 
       <!-- Prev/Next Navigation -->
