@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import { getAddons, getCoverUrl, formatDate } from '../../lib/strapi.js';
 
 const addons = await getAddons();
@@ -11,6 +12,8 @@ const addons = await getAddons();
       <h1>Stremio Addons</h1>
       <p>Browse and discover the best Stremio addons</p>
     </div>
+
+    <AdSlot slot="7278792318" format="fluid" layoutKey="-fb+5w+4e-db+86" className="listing-ad" />
 
     {addons.length === 0 ? (
       <div class="addons-empty">No addons yet. Check back soon!</div>
@@ -39,6 +42,7 @@ const addons = await getAddons();
           </a>
         ))}
       </div>
+      <AdSlot slot="3066421469" format="autorelaxed" className="listing-ad" />
     )}
   </div>
 </Layout>

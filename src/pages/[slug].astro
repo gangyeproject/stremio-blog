@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import AdSlot from '../components/AdSlot.astro';
 import { getAllSlugs, getArticleBySlug, getArticles, getCoverUrl, formatDate, renderContent } from '../lib/strapi.js';
 
 export async function getStaticPaths() {
@@ -49,6 +50,8 @@ const content = renderContent(article.content);
             <span class="article__date">{formatDate(article.publishedAt)}</span>
           </div>
         </header>
+
+        <AdSlot slot="5087719225" format="fluid" layout="in-article" className="article-ad" />
 
         <div class="article__content" set:html={content}></div>
       </article>

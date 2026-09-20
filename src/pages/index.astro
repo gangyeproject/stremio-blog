@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import AdSlot from '../components/AdSlot.astro';
 import { getArticles, getCoverUrl, formatDate } from '../lib/strapi.js';
 
 const ARTICLES_PER_PAGE = 6;
@@ -15,6 +16,8 @@ const currentPage = 1;
       <h1>Stremio Addon Guides</h1>
       <p>Troubleshooting, tips, and guides for Stremio addons</p>
     </div>
+
+    <AdSlot slot="7278792318" format="fluid" layoutKey="-fb+5w+4e-db+86" className="listing-ad" />
 
     {articles.length === 0 ? (
       <div class="blog-empty">No articles yet. Check back soon!</div>
@@ -43,6 +46,7 @@ const currentPage = 1;
           </a>
         ))}
       </div>
+      <AdSlot slot="3066421469" format="autorelaxed" className="listing-ad" />
     )}
 
     {totalPages > 1 && (

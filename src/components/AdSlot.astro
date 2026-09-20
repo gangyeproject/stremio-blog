@@ -1,0 +1,33 @@
+---
+export interface Props {
+  slot: string;
+  format?: 'auto' | 'fluid' | 'autorelaxed';
+  layout?: string;
+  layoutKey?: string;
+  className?: string;
+}
+
+const { slot, format = 'auto', layout, layoutKey, className = '' } = Astro.props;
+---
+
+<div class={`ad-slot ${className}`} aria-label="Advertisement">
+  <ins
+    class="adsbygoogle"
+    style="display:block"
+    data-ad-client="ca-pub-3421131375387199"
+    data-ad-slot={slot}
+    data-ad-format={format}
+    data-full-width-responsive={format === 'auto' ? 'true' : undefined}
+    data-ad-layout={layout}
+    data-ad-layout-key={layoutKey}
+  ></ins>
+</div>
+
+<script is:inline>
+  (window.adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+<style>
+  .ad-slot { width: 100%; min-height: 90px; margin: 2rem 0; overflow: hidden; text-align: center; }
+  .ad-slot :global(.adsbygoogle) { min-height: 90px; }
+</style>

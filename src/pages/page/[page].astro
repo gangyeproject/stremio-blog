@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import { getArticles, getCoverUrl, formatDate } from '../../lib/strapi.js';
 
 export async function getStaticPaths() {
@@ -44,6 +45,8 @@ const nextPage = currentPage < totalPages ? `/blog/page/${currentPage + 1}` : nu
       <p>Troubleshooting, tips, and guides for Stremio addons</p>
     </div>
 
+    <AdSlot slot="7278792318" format="fluid" layoutKey="-fb+5w+4e-db+86" className="listing-ad" />
+
     <div class="blog-grid">
       {articles.map((article) => (
         <a href={`/blog/${article.slug}`} class="blog-card">
@@ -68,6 +71,8 @@ const nextPage = currentPage < totalPages ? `/blog/page/${currentPage + 1}` : nu
         </a>
       ))}
     </div>
+
+    <AdSlot slot="3066421469" format="autorelaxed" className="listing-ad" />
 
     <nav class="pagination">
       <span class="pagination__info">Page {currentPage} of {totalPages}</span>

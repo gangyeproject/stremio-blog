@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import { getAddonBySlug, getAllAddonSlugs, getAddons, getCoverUrl, formatDate, renderContent } from '../../lib/strapi.js';
 
 export async function getStaticPaths() {
@@ -69,6 +70,7 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
 
 
     <div class="addon-article__content" set:html={renderContent(addon.content)} />
+    <AdSlot slot="9291007289" format="auto" className="detail-ad" />
   </article>
 
   {relatedAddons.length > 0 && (
