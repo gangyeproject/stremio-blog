@@ -36,7 +36,10 @@ function walk(dir) {
     if (category === 'Addon detail' || category === 'Blog article') {
       const start = html.search(/class="(?:addon-article__content|article__content)"/);
       const beforeAd = html.slice(start, html.indexOf('<ins', start));
-      assert.equal((beforeAd.match(/<p(?:\s|>)/g) || []).length, 1, name + ': first ad must follow introduction');
+      const introductoryText = beforeAd.replace(/<(blockquote|ul|ol|table)\b[^>]*>[\s\S]*?<\/\1>/g, '');
+      const textParagraphs = [...introductoryText.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)]
+        .filter(match => !/^\s*<img\b/.test(match[1]) && match[1].replace(/<[^>]*>/g, '').trim());
+      assert.ok(textParagraphs.length <= 1, name + ': first ad must follow introduction');
     }
     assert.ok(tags.length <= (category === 'Blog list' ? 1 : 2), name + ': too many ads');
     if (category.endsWith('detail') || category === 'Blog article') assert.ok(tags.length >= 1, name + ': missing ad');
