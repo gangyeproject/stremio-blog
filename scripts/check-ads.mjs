@@ -29,7 +29,7 @@ function walk(dir) {
       if (attrs['data-ad-slot'] === '9291007289') assert.equal(attrs['data-full-width-responsive'], 'true');
     }
     const category = name === 'addons/index.html' ? 'Addon list' : name.startsWith('addons/') ? 'Addon detail' : name === 'index.html' || name.startsWith('page/') ? 'Blog list' : 'Blog article';
-    assert.ok(tags.length <= (category.startsWith('Addon') ? 2 : 1), name + ': too many ads');
+    assert.ok(tags.length <= (category === 'Blog list' ? 1 : 2), name + ': too many ads');
     if (category.endsWith('detail') || category === 'Blog article') assert.ok(tags.length >= 1, name + ': missing ad');
     const key = `${category}: ${tags.length} ads`;
     counts[key] = (counts[key] || 0) + 1;

@@ -57,6 +57,7 @@ const contentParts = splitAddonContent(article.content || '');
           <AdSlot adSlot="5087719225" format="fluid" layout="in-article" className="article-ad" />
           {contentParts.length === 2 && <Fragment set:html={renderContent(contentParts[1])} />}
         </div>
+        {contentParts.length === 2 && <AdSlot adSlot="9291007289" format="auto" className="article-ad" />}
       </article>
 
       <!-- Prev/Next Navigation -->
