@@ -29,6 +29,15 @@ function walk(dir) {
       if (attrs['data-ad-slot'] === '9291007289') assert.equal(attrs['data-full-width-responsive'], 'true');
     }
     const category = name === 'addons/index.html' ? 'Addon list' : name.startsWith('addons/') ? 'Addon detail' : name === 'index.html' || name.startsWith('page/') ? 'Blog list' : 'Blog article';
+    if (category.endsWith('list') && tags.length) {
+      const beforeAd = html.slice(0, html.indexOf('<ins'));
+      assert.equal((beforeAd.match(/class="(?:blog|addon)-card"/g) || []).length, 3, name + ': feed must follow third card');
+    }
+    if (category === 'Addon detail' || category === 'Blog article') {
+      const start = html.search(/class="(?:addon-article__content|article__content)"/);
+      const beforeAd = html.slice(start, html.indexOf('<ins', start));
+      assert.equal((beforeAd.match(/<p(?:\s|>)/g) || []).length, 1, name + ': first ad must follow introduction');
+    }
     assert.ok(tags.length <= (category === 'Blog list' ? 1 : 2), name + ': too many ads');
     if (category.endsWith('detail') || category === 'Blog article') assert.ok(tags.length >= 1, name + ': missing ad');
     const key = `${category}: ${tags.length} ads`;

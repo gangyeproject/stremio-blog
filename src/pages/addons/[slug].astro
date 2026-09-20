@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import AdSlot from '../../components/AdSlot.astro';
-import { splitAddonContent } from '../../lib/addon-ad.js';
+import { getAdContentParts } from '../../lib/addon-ad.js';
 import { getAddonBySlug, getAllAddonSlugs, getAddons, getCoverUrl, formatDate, renderContent } from '../../lib/strapi.js';
 
 export async function getStaticPaths() {
@@ -17,7 +17,7 @@ if (!addon) {
 }
 
 const coverUrl = getCoverUrl(addon);
-const contentParts = splitAddonContent(addon.content || '');
+const contentParts = getAdContentParts(addon.content || '');
 
 // Generate install URLs from manifestUrl
 const manifestUrl = addon.manifestUrl;
@@ -72,11 +72,12 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
 
 
     <div class="addon-article__content" set:html={renderContent(contentParts[0])} />
-    {contentParts.length === 2 && <>
-      <AdSlot adSlot="5087719225" format="fluid" layout="in-article" />
-      <div class="addon-article__content" set:html={renderContent(contentParts[1])} />
-    </>}
     <AdSlot adSlot="9291007289" format="auto" className="detail-ad" />
+    <div class="addon-article__content" set:html={renderContent(contentParts[1])} />
+    {contentParts.length === 3 && <>
+      <AdSlot adSlot="5087719225" format="fluid" layout="in-article" />
+      <div class="addon-article__content" set:html={renderContent(contentParts[2])} />
+    </>}
   </article>
 
   {relatedAddons.length > 0 && (

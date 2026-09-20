@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { splitAddonContent } from '../src/lib/addon-ad.js';
+import { splitAddonContent, getAdContentParts } from '../src/lib/addon-ad.js';
 
 const paragraph = 'Readable text with useful details. '.repeat(55);
 const long = `${paragraph}\n\n## Compatibility\n\n${paragraph}`;
@@ -14,3 +14,9 @@ const withList = `${paragraph}\n\n- Complete feature one\n- Complete feature two
 assert.equal(splitAddonContent(withList).length, 2);
 assert.equal(splitAddonContent(withList).join(''), withList);
 console.log('Ad split checks passed: short content, section boundaries, steps, code, and content preservation.');
+const intro = 'This introduction explains the addon clearly.\n\n';
+const earlyParts = getAdContentParts(intro + long);
+assert.equal(earlyParts[0].trim(), intro.trim());
+assert.equal(earlyParts.length, 3);
+assert.equal(earlyParts.join(''), intro + long);
+assert.deepEqual(getAdContentParts('Short description.'), ['Short description.', '']);
