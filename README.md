@@ -1,4 +1,13 @@
-# Astro Starter Kit: Minimal
+# Stremio Blog
+
+Strapi collections are fetched across every page for both listings and static
+routes. Keep the API's misspelled addon field `sulg` unchanged. API failures must
+fail the build rather than silently publish empty listings or missing pages.
+
+Run `node scripts/check-strapi-pagination.mjs` for the pagination regression check,
+then `npm run build` to verify the generated site against the published content.
+
+## Original starter documentation
 
 ```sh
 npm create astro@latest -- --template minimal
