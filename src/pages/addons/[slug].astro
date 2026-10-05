@@ -2,16 +2,21 @@
 import Layout from '../../layouts/Layout.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import { getAdContentParts } from '../../lib/addon-ad.js';
-import { getAddonBySlug, getAllAddonSlugs, getAddons, formatDate } from '../../lib/strapi.js';
+import { getAddons, formatDate } from '../../lib/strapi.js';
 import { getAddonIcon, getAddonInitials, isManifestUrl, prepareAddonContent, renderAddonContent } from '../../lib/addon-content.js';
 
 export async function getStaticPaths() {
-  const slugs = await getAllAddonSlugs();
-  return slugs.map(slug => ({ params: { slug } }));
+  const addons = await getAddons();
+  return addons.filter(addon => addon.sulg).map(addon => ({
+    params: { slug: addon.sulg },
+    props: {
+      addon,
+      relatedAddons: addons.filter(related => related.sulg !== addon.sulg).slice(0, 3),
+    },
+  }));
 }
 
-const { slug } = Astro.params;
-const addon = await getAddonBySlug(slug);
+const { addon, relatedAddons } = Astro.props;
 
 if (!addon) {
   return Astro.redirect('/blog/addons');
@@ -26,9 +31,6 @@ const manifestUrl = isManifestUrl(addon.manifestUrl) ? addon.manifestUrl : null;
 const appInstallUrl = manifestUrl ? manifestUrl.replace('https://', 'stremio://') : null;
 const webInstallUrl = manifestUrl ? `https://web.stremio.com/#/addons?addon=${encodeURIComponent(manifestUrl)}` : null;
 
-// Get related addons (exclude current)
-const allAddons = await getAddons();
-const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
 ---
 
 <Layout
