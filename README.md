@@ -1,5 +1,11 @@
 # Stremio Blog
 
+Addon pages use a dedicated Markdown renderer with source links removed and only
+manifest.json links retained in the body. Header and card icons use the cover or
+the existing Markdown logo; missing logos show name initials, not invented artwork.
+The article renderer is unchanged. Run `node scripts/check-addon-content.mjs`
+alongside the existing pagination and ad-splitting checks before deployment.
+
 Strapi collections are fetched across every page for both listings and static
 routes. Keep the API's misspelled addon field `sulg` unchanged. API failures must
 fail the build rather than silently publish empty listings or missing pages.

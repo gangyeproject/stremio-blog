@@ -2,7 +2,8 @@
 import Layout from '../../layouts/Layout.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import { getAdContentParts } from '../../lib/addon-ad.js';
-import { getAddonBySlug, getAllAddonSlugs, getAddons, getCoverUrl, formatDate, renderContent } from '../../lib/strapi.js';
+import { getAddonBySlug, getAllAddonSlugs, getAddons, formatDate } from '../../lib/strapi.js';
+import { getAddonIcon, getAddonInitials, isManifestUrl, prepareAddonContent, renderAddonContent } from '../../lib/addon-content.js';
 
 export async function getStaticPaths() {
   const slugs = await getAllAddonSlugs();
@@ -16,11 +17,12 @@ if (!addon) {
   return Astro.redirect('/blog/addons');
 }
 
-const coverUrl = getCoverUrl(addon);
-const contentParts = getAdContentParts(addon.content || '');
+const coverUrl = getAddonIcon(addon);
+const contentParts = getAdContentParts(prepareAddonContent(addon.content || '', coverUrl));
+const categories = Array.isArray(addon.types) ? addon.types.filter(type => typeof type === 'string').slice(0, 6) : [];
 
 // Generate install URLs from manifestUrl
-const manifestUrl = addon.manifestUrl;
+const manifestUrl = isManifestUrl(addon.manifestUrl) ? addon.manifestUrl : null;
 const appInstallUrl = manifestUrl ? manifestUrl.replace('https://', 'stremio://') : null;
 const webInstallUrl = manifestUrl ? `https://web.stremio.com/#/addons?addon=${encodeURIComponent(manifestUrl)}` : null;
 
@@ -43,7 +45,22 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
   <article class="addon-article">
     <header class="addon-article__header">
       <a href="/blog/addons" class="addon-article__back">← Back to Addons</a>
-      <h1>{addon.title}</h1>
+      <div class="addon-article__identity">
+        <div class="addon-article__icon">
+          {coverUrl ? (
+            <img src={coverUrl} alt={`${addon.title} icon`} width="96" height="96" decoding="async" />
+          ) : (
+            <span class="addon-article__initials" aria-label="No icon supplied">{getAddonInitials(addon)}</span>
+          )}
+        </div>
+        <div class="addon-article__intro">
+          <h1>{addon.title}</h1>
+          {addon.summary && <p class="addon-article__summary">{addon.summary}</p>}
+          {categories.length > 0 && <ul class="addon-article__categories" aria-label="Categories">
+            {categories.map(category => <li>{category}</li>)}
+          </ul>}
+        </div>
+      </div>
       <div class="addon-article__meta">
         <time datetime={addon.publishedAt}>{formatDate(addon.publishedAt)}</time>
       </div>
@@ -71,12 +88,12 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
     )}
 
 
-    <div class="addon-article__content" set:html={renderContent(contentParts[0])} />
+    <div class="addon-article__content" set:html={renderAddonContent(contentParts[0])} />
     <AdSlot adSlot="9291007289" format="auto" className="detail-ad" />
-    <div class="addon-article__content" set:html={renderContent(contentParts[1])} />
+    <div class="addon-article__content" set:html={renderAddonContent(contentParts[1])} />
     {contentParts.length === 3 && <>
       <AdSlot adSlot="5087719225" format="fluid" layout="in-article" />
-      <div class="addon-article__content" set:html={renderContent(contentParts[2])} />
+      <div class="addon-article__content" set:html={renderAddonContent(contentParts[2])} />
     </>}
   </article>
 
@@ -87,15 +104,11 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
         {relatedAddons.map((related) => (
           <a href={`/blog/addons/${related.sulg}`} class="related-card">
             <div class="related-card__image">
-              {getCoverUrl(related) ? (
-                <img src={getCoverUrl(related)} alt={related.title} loading="lazy" decoding="async" />
+              {getAddonIcon(related) ? (
+                <img src={getAddonIcon(related)} alt={related.title} loading="lazy" decoding="async" />
               ) : (
                 <div class="related-card__placeholder">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                    <path d="M2 17l10 5 10-5"/>
-                    <path d="M2 12l10 5 10-5"/>
-                  </svg>
+                  <span aria-label="No icon supplied">{getAddonInitials(related)}</span>
                 </div>
               )}
             </div>
@@ -114,7 +127,15 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
   .addon-article__back { display: inline-block; margin-bottom: 1.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
   .addon-article__back:hover { text-decoration: underline; }
   .addon-article__header { margin-bottom: 1.5rem; }
-  .addon-article__header h1 { font-size: 2.5rem; line-height: 1.2; margin-bottom: 1rem; color: var(--text-color); }
+  .addon-article__identity { display: flex; align-items: flex-start; gap: 1.25rem; margin-bottom: 1.25rem; }
+  .addon-article__icon { flex: 0 0 96px; width: 96px; height: 96px; border: 1px solid var(--border-color); border-radius: 18px; overflow: hidden; background: #f5f2ff; }
+  .addon-article__icon img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .addon-article__initials { display: grid; place-items: center; width: 100%; height: 100%; font-weight: 700; font-size: 1.6rem; color: #6544c9; }
+  .addon-article__intro { min-width: 0; }
+  .addon-article__header h1 { font-size: clamp(1.6rem, 3vw, 2.15rem); line-height: 1.25; margin: 0 0 0.75rem; color: var(--text-color); overflow-wrap: anywhere; }
+  .addon-article__summary { margin: 0 0 1rem; color: var(--text-muted); font-size: 1rem; line-height: 1.65; }
+  .addon-article__categories { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; padding: 0; margin: 0; }
+  .addon-article__categories li { padding: 0.2rem 0.6rem; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.8rem; color: var(--text-muted); }
   .addon-article__meta { color: var(--text-muted); font-size: 0.95rem; }
   .install-buttons { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
   .install-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 1rem; text-decoration: none; transition: all 0.2s; }
@@ -125,12 +146,16 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
   .install-btn--web:hover { background: var(--primary-color); color: #fff; }
   .addon-article__cover { margin-bottom: 2rem; border-radius: 12px; overflow: hidden; }
   .addon-article__cover img { display: block; width: auto; max-width: min(100%, 240px); max-height: 200px; height: auto; object-fit: contain; margin: 0 auto; }
-  .addon-article__content { line-height: 1.8; }
-  .addon-article__content :global(h2) { font-size: 1.75rem; margin-top: 2.5rem; margin-bottom: 1rem; color: var(--text-color); }
-  .addon-article__content :global(h3) { font-size: 1.4rem; margin-top: 2rem; margin-bottom: 0.75rem; color: var(--text-color); }
-  .addon-article__content :global(p) { margin-bottom: 1.5rem; }
-  .addon-article__content :global(ul), .addon-article__content :global(ol) { margin-bottom: 1.5rem; padding-left: 1.5rem; }
-  .addon-article__content :global(li) { margin-bottom: 0.5rem; }
+  .addon-article__content { max-width: 68ch; margin-inline: auto; line-height: 1.8; font-size: 1.025rem; overflow-wrap: anywhere; }
+  .addon-article__content :global(h2) { font-size: 1.4rem; line-height: 1.35; margin-top: 2.25rem; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-color); color: var(--text-color); }
+  .addon-article__content :global(h3) { font-size: 1.15rem; line-height: 1.4; margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--text-color); }
+  .addon-article__content :global(p) { margin: 0 0 1.2rem; }
+  .addon-article__content :global(ul), .addon-article__content :global(ol) { margin: 0 0 1.5rem; padding-left: 1.5rem; }
+  .addon-article__content :global(li) { padding-left: 0.25rem; margin-bottom: 0.8rem; }
+  .addon-article__content :global(li::marker) { color: var(--primary-color); }
+  .addon-article__content :global(strong) { font-weight: 650; color: var(--text-color); }
+  .addon-article__content :global(table) { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin-bottom: 1.5rem; }
+  .addon-article__content :global(th), .addon-article__content :global(td) { padding: 0.6rem 0.8rem; border: 1px solid var(--border-color); text-align: left; }
   .addon-article__content :global(pre) { background: #f5f5f5; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1.5rem; }
   .addon-article__content :global(code) { font-family: monospace; font-size: 0.9rem; }
   .addon-article__content :global(blockquote) { border-left: 4px solid var(--primary-color); padding-left: 1rem; margin: 1.5rem 0; color: var(--text-muted); }
@@ -148,7 +173,9 @@ const relatedAddons = allAddons.filter(a => a.sulg !== addon.sulg).slice(0, 3);
   .related-card__content { padding: 1rem; }
   .related-card__content h3 { font-size: 0.95rem; margin: 0; color: var(--text-color); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   @media (max-width: 640px) {
-    .addon-article__header h1 { font-size: 2rem; }
+    .addon-article__identity { flex-direction: column; gap: 1rem; }
+    .addon-article__icon { flex-basis: 80px; width: 80px; height: 80px; }
+    .addon-article__header h1 { font-size: 1.65rem; }
     .addon-article__content :global(img) { max-height: 240px; }
     .addon-article__content :global(img[alt*="logo" i]),
     .addon-article__content :global(img[alt*="icon" i]) { max-width: min(100%, 128px); max-height: 128px; }
