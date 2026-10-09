@@ -16,6 +16,17 @@ function walk(dir) {
     if (!path.endsWith('.html')) continue;
     const html = readFileSync(path, 'utf8');
     const name = relative('dist', path).replaceAll('\\', '/');
+    const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1];
+    assert.ok(head, name + ': missing head');
+    const recoveryUrl = 'https://fundingchoicesmessages.google.com/i/pub-3421131375387199?ers=1';
+    assert.equal(html.split(recoveryUrl).length - 1, 1, name + ': expected one recovery loader');
+    const recoveryLoader = [...head.matchAll(/<script\b[^>]*>/g)].find(match => match[0].includes(recoveryUrl));
+    assert.ok(recoveryLoader && /\sasync(?:\s|=|>)/.test(recoveryLoader[0]), name + ': recovery loader must be async in head');
+    const recoverySignals = [...head.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)]
+      .filter(match => match[1].includes('function signalGooglefcPresent()'));
+    assert.equal(recoverySignals.length, 1, name + ': expected inline recovery signal in head');
+    assert.ok(recoverySignals[0][1].includes("iframe.name = 'googlefcPresent'"), name + ': missing recovery iframe name');
+    assert.equal(html.split('function signalGooglefcPresent()').length - 1, 1, name + ': duplicate recovery signal');
     const tags = [...html.matchAll(/<ins\b[^>]*>/g)].map(m => m[0]);
     assert.equal((html.match(/pagead\/js\/adsbygoogle\.js/g) || []).length, 1, name);
     for (const tag of tags) {
