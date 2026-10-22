@@ -3,8 +3,10 @@ import Layout from '../../layouts/Layout.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import { getAddons, formatDate } from '../../lib/strapi.js';
 import { getAddonIcon, getAddonInitials } from '../../lib/addon-content.js';
+import { getAddonCategories, getAddonSearchText, getCategoryOptions } from '../../lib/addon-filters.js';
 
 const addons = await getAddons();
+const categories = getCategoryOptions(addons);
 ---
 
 <Layout title="Stremio Addons | Stremio Addon Manager" description="Browse and discover the best Stremio addons for movies, TV shows, and more.">
@@ -15,12 +17,43 @@ const addons = await getAddons();
     </div>
 
 
+    {addons.length > 0 && <form id="addon-filters" class="addon-filters" role="search" aria-label="Find addons" hidden>
+      <fieldset class="addon-filters__panel">
+        <legend class="addon-filters__legend">Find an addon</legend>
+        <div class="addon-filters__field">
+          <label for="addon-search">Search addons</label>
+          <div class="addon-filters__input-wrap">
+            <svg class="addon-filters__search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 4.5 4.5" />
+            </svg>
+            <input id="addon-search" name="q" type="search" placeholder="Search by name or keyword…" autocomplete="off" aria-controls="addon-results" />
+          </div>
+        </div>
+        <div class="addon-filters__field">
+          <label for="addon-category">Category</label>
+          <div class="addon-filters__input-wrap">
+            <select id="addon-category" name="category" aria-controls="addon-results">
+              <option value="">All categories ({addons.length})</option>
+              {categories.map(category => <option value={category.id}>{category.label} ({category.count})</option>)}
+            </select>
+            <svg class="addon-filters__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </div>
+        </div>
+        <button class="addon-filters__reset" type="reset" disabled>Clear filters</button>
+      </fieldset>
+      <p id="addon-result-count" role="status" aria-live="polite" aria-atomic="true">{addons.length} addons</p>
+    </form>}
+
     {addons.length === 0 ? (
       <div class="addons-empty">No addons yet. Check back soon!</div>
     ) : (<>
-      <div class="addons-grid">
+      <p id="addon-no-results" hidden>No addons match your search. Try another keyword or clear the filters.</p>
+      <div class="addons-grid" id="addon-results">
         {addons.map((addon, index) => (<>
-          <a href={`/blog/addons/${addon.sulg}`} class="addon-card">
+          <a href={`/blog/addons/${addon.sulg}`} class="addon-card" data-search={getAddonSearchText(addon)} data-categories={getAddonCategories(addon).join(' ')}>
             <div class="addon-card__image">
               {getAddonIcon(addon) ? (
                 <img src={getAddonIcon(addon)} alt={addon.title} loading="lazy" decoding="async" />
@@ -44,7 +77,225 @@ const addons = await getAddons();
   </div>
 </Layout>
 
+<script>
+  import { matchesAddon } from '../../lib/addon-filters.js';
+
+  const form = document.querySelector<HTMLFormElement>('#addon-filters');
+  const search = document.querySelector<HTMLInputElement>('#addon-search');
+  const category = document.querySelector<HTMLSelectElement>('#addon-category');
+  const resultCount = document.querySelector<HTMLElement>('#addon-result-count');
+  const noResults = document.querySelector<HTMLElement>('#addon-no-results');
+  const resetButton = form?.querySelector<HTMLButtonElement>('button[type="reset"]');
+  const cards = [...document.querySelectorAll<HTMLAnchorElement>('#addon-results .addon-card')];
+
+  if (form && search && category && resultCount && noResults) {
+    function filterAddons() {
+      let visibleCount = 0;
+      for (const card of cards) {
+        const visible = matchesAddon(card.dataset.search || '', (card.dataset.categories || '').split(' '), search!.value, category!.value);
+        card.hidden = !visible;
+        if (visible) visibleCount += 1;
+      }
+      resultCount!.textContent = `${visibleCount} of ${cards.length} addons`;
+      noResults!.hidden = visibleCount !== 0;
+      if (resetButton) resetButton.disabled = !search!.value && !category!.value;
+      for (const advertisement of document.querySelectorAll<HTMLElement>('.addons-page .listing-ad')) {
+        advertisement.hidden = Boolean(search!.value.trim() || category!.value);
+      }
+    }
+
+    form.addEventListener('submit', event => event.preventDefault());
+    search.addEventListener('input', filterAddons);
+    category.addEventListener('change', filterAddons);
+    form.addEventListener('reset', () => {
+      search.value = '';
+      category.value = '';
+      filterAddons();
+      search.focus();
+    });
+    filterAddons();
+    form.hidden = false;
+  }
+</script>
+
 <style>
+  .addon-filters {
+    margin-bottom: 1.75rem;
+  }
+
+  .addon-filters__panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 260px) auto;
+    align-items: end;
+    gap: 1rem;
+    min-width: 0;
+    margin: 0;
+    padding: 1.5rem;
+    border: 1px solid #e5e0f5;
+    border-radius: 16px;
+    background: linear-gradient(120deg, #faf9ff, #ffffff);
+    box-shadow: 0 4px 20px rgba(70, 45, 120, 0.04);
+  }
+
+  .addon-filters__legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .addon-filters__field {
+    min-width: 0;
+  }
+
+  .addon-filters__field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .addon-filters__input-wrap {
+    position: relative;
+  }
+
+  .addon-filters__input-wrap input,
+  .addon-filters__input-wrap select {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: 48px;
+    border: 1px solid #dcd8e8;
+    border-radius: 10px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 1rem;
+    line-height: normal;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+
+  .addon-filters__input-wrap input {
+    padding: 0 0.9rem 0 2.75rem;
+  }
+
+  .addon-filters__input-wrap input::placeholder {
+    color: #777183;
+    opacity: 1;
+  }
+
+  .addon-filters__input-wrap select {
+    appearance: none;
+    padding: 0 2.5rem 0 0.9rem;
+    cursor: pointer;
+  }
+
+  .addon-filters__input-wrap input:hover,
+  .addon-filters__input-wrap select:hover {
+    border-color: #b4a5dc;
+  }
+
+  .addon-filters__input-wrap input:focus-visible,
+  .addon-filters__input-wrap select:focus-visible,
+  .addon-filters__reset:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(123, 91, 245, 0.08);
+  }
+
+  .addon-filters__search-icon,
+  .addon-filters__chevron {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #817492;
+    pointer-events: none;
+  }
+
+  .addon-filters__search-icon {
+    left: 0.9rem;
+  }
+
+  .addon-filters__chevron {
+    right: 0.85rem;
+  }
+
+  .addon-filters__reset {
+    min-height: 48px;
+    padding: 0.65rem 1rem;
+    border: 1px solid #ddd4fa;
+    border-radius: 10px;
+    background: #f0ebff;
+    color: #6542cc;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease;
+  }
+
+  .addon-filters__reset:hover:not(:disabled) {
+    background: #e5dcff;
+  }
+
+  .addon-filters__reset:disabled {
+    border-color: #e5e2eb;
+    background: #f5f3f8;
+    color: #80798d;
+    cursor: default;
+  }
+
+  #addon-result-count {
+    margin: 1rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #addon-no-results {
+    margin: 0 0 2rem;
+    padding: 2rem 1.25rem;
+    border: 1px dashed #dcd5ee;
+    border-radius: 12px;
+    background: #faf9ff;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 760px) {
+    .addon-filters__panel {
+      grid-template-columns: minmax(0, 1fr) auto;
+      padding: 1.25rem;
+    }
+
+    .addon-filters__field:first-of-type {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .addon-filters__panel {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.875rem;
+      padding: 1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .addon-filters__input-wrap input,
+    .addon-filters__input-wrap select,
+    .addon-filters__reset {
+      transition: none;
+    }
+  }
+
   .addons-page {
     max-width: 1000px;
     margin: 0 auto;
