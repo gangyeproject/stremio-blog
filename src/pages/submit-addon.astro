@@ -1,0 +1,160 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const submissionApi = import.meta.env.PUBLIC_SUBMISSIONS_API || 'https://admin.stremioaddonmanager.org/addon-submissions';
+---
+
+<Layout title="Submit a Stremio Addon | Stremio Addon Manager" description="Share your Stremio addon with the community. Submit a public manifest for validation and AI review.">
+  <div class="submission-page">
+    <a class="back-link" href="/blog/addons">← Back to addons</a>
+    <header class="submission-header">
+      <span class="eyebrow">BUILT BY THE COMMUNITY</span>
+      <h1>Your addon. A new audience.</h1>
+      <p>Share what you’ve built for Stremio. We’ll check your manifest and review your submission before it joins the directory.</p>
+    </header>
+    <div id="preview-notice" class="notice" hidden><strong>Preview mode.</strong> You can test the form and review process. Nothing submitted here will be published to the live site.</div>
+    <div class="submission-layout">
+      <form id="submission-form" class="submission-form" data-api={submissionApi}>
+        <div class="section-heading"><span class="section-number">01</span><div><h2>The essentials</h2><p>Use the same addon name as your manifest.</p></div></div>
+        <div class="field">
+          <label for="addon-name">Addon name <span>Required</span></label>
+          <input id="addon-name" name="name" type="text" required minlength="2" maxlength="80" placeholder="e.g. My Movie Catalog" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="manifest-url">Manifest URL <span>Required</span></label>
+          <input id="manifest-url" name="manifestUrl" type="url" required maxlength="2048" placeholder="https://your-addon.com/manifest.json" aria-describedby="manifest-help" spellcheck="false" autocomplete="off" />
+          <p class="field-help" id="manifest-help">A public HTTPS address ending in <code>/manifest.json</code>. No private keys, personal configuration, query parameters or login required.</p>
+        </div>
+        <div class="field">
+          <label for="addon-description">What does your addon do? <span>Required</span></label>
+          <textarea id="addon-description" name="description" rows="6" required minlength="40" maxlength="3000" placeholder="Describe its purpose, useful features, supported content and any requirements. Be specific and factual." aria-describedby="description-help description-count"></textarea>
+          <div class="field-meta"><p class="field-help" id="description-help">40–3,000 characters. No installation steps needed.</p><span id="description-count">0 / 3,000</span></div>
+        </div>
+        <div class="section-heading secondary"><span class="section-number">02</span><div><h2>Make it yours</h2><p>A little context for the people who find your addon.</p></div></div>
+        <div class="field">
+          <label for="author-name">Author name <span>Optional</span></label>
+          <input id="author-name" name="author" type="text" maxlength="80" placeholder="Your name or team" autocomplete="nickname" aria-describedby="author-help" />
+          <p class="field-help" id="author-help">Leave blank to display <strong>Anonymous</strong>. Attribution is shown as submitted, not independently verified.</p>
+        </div>
+        <div class="field">
+          <label for="icon-url">Icon URL <span>Optional</span></label>
+          <input id="icon-url" name="iconUrl" type="url" maxlength="2048" placeholder="https://your-addon.com/icon.png" aria-describedby="icon-help" spellcheck="false" autocomplete="off" />
+          <p class="field-help" id="icon-help">Public PNG, JPEG or WebP, up to 2 MB. Leave blank for your addon’s first letter. Images are checked before publication.</p>
+        </div>
+        <div class="bot-field" aria-hidden="true"><label for="submission-website">Leave this empty</label><input id="submission-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+        <label class="consent"><input id="submission-consent" name="consent" type="checkbox" required /><span>I’m authorized to submit this addon. It contains no adult content, malware or deceptive material, and I’ve included no private credentials.</span></label>
+        <p class="privacy-note">Your submission, public manifest and optional icon are sent to our AI review service. Approved details and the submitted author name will be public. AI review is not a guarantee of safety or ownership.</p>
+        <div id="form-error" class="form-error" role="alert" hidden></div>
+        <button id="submit-button" class="submit-button" type="submit" disabled><span>Submit for review</span><span aria-hidden="true">↗</span></button>
+        <p class="submit-note">Only approved submissions go live. Up to 3 submissions per network per day.</p>
+        <noscript><p class="form-error">Please enable JavaScript to submit your addon.</p></noscript>
+      </form>
+      <aside class="submission-sidebar">
+        <section class="addon-preview" aria-label="Your addon preview">
+          <span class="eyebrow">YOUR ADDON AT A GLANCE</span>
+          <div id="preview-initial" class="preview-initial" aria-hidden="true">A</div>
+          <h2 id="preview-name">Your addon name</h2>
+          <p id="preview-author" class="preview-author">By Anonymous</p>
+          <p id="preview-description" class="preview-description">A clear, useful description helps people discover what makes your addon different.</p>
+          <span class="preview-badge">Community submission</span>
+          <p class="preview-footnote">Illustrative preview. Icons and final descriptions are reviewed before publication.</p>
+        </section>
+        <section class="review-info">
+          <h2>What happens next?</h2>
+          <ol>
+            <li><strong>Manifest check</strong><span>We validate the public URL and required addon information.</span></li>
+            <li><strong>AI review</strong><span>We check relevance, consistency, adult content and unsafe material.</span></li>
+            <li><strong>Automatic publication</strong><span>Approved addons join the directory after deployment.</span></li>
+          </ol>
+          <p>Uncertain submissions aren’t automatically approved. Unavailable review services are retried rather than bypassed.</p>
+        </section>
+      </aside>
+    </div>
+    <section id="submission-status" class="submission-status" aria-labelledby="status-heading" hidden>
+      <span class="eyebrow">YOUR SUBMISSION</span><h2 id="status-heading">Submission received</h2>
+      <p id="status-message" role="status" aria-live="polite"></p>
+      <div class="receipt-row"><label for="submission-receipt">Private receipt</label><input id="submission-receipt" readonly /><button id="copy-receipt" type="button">Copy</button></div>
+      <p class="field-help">Save this receipt to check again later. It’s saved in this browser when storage is available. Keep it private.</p>
+      <div class="status-actions"><button id="check-status" type="button">Check status</button><a id="published-link" href="/blog/addons" hidden>View your addon →</a></div>
+      <p id="status-error" role="alert" hidden></p>
+    </section>
+    <details class="receipt-lookup"><summary>Already submitted? Check a receipt</summary><form id="receipt-form"><label for="saved-receipt">Submission receipt</label><div><input id="saved-receipt" type="text" required pattern="[a-f0-9]{64}" maxlength="64" autocomplete="off" placeholder="Paste your private receipt" /><button type="submit">Check status</button></div></form></details>
+  </div>
+</Layout>
+
+<script>
+  import '../lib/submission-form';
+</script>
+
+<style>
+  .submission-page { max-width: 1080px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  .back-link { display: inline-flex; font-size: .9rem; font-weight: 500; margin-bottom: 2rem; }
+  .submission-header { max-width: 680px; margin-bottom: 2.5rem; }
+  .eyebrow { color: #7253c9; font-size: .72rem; font-weight: 700; letter-spacing: .12em; }
+  .submission-header h1 { margin: .65rem 0 .8rem; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.18; letter-spacing: -.035em; color: #292136; }
+  .submission-header p { margin: 0; color: #6a6474; font-size: 1.08rem; line-height: 1.8; }
+  .submission-layout { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 2rem; align-items: start; }
+  .submission-form { padding: 2rem; border: 1px solid #e6e0ef; border-radius: 20px; background: #fff; box-shadow: 0 8px 40px #33205b06; min-width: 0; }
+  .section-heading { display: flex; align-items: center; gap: .9rem; margin-bottom: 1.7rem; }
+  .section-number { display: grid; place-items: center; flex: 0 0 36px; height: 36px; border-radius: 11px; background: #f0ebff; color: #7452d7; font-weight: 650; font-size: .8rem; }
+  .section-heading h2 { margin: 0; font-size: 1.13rem; color: #332a41; }
+  .section-heading p { margin: .15rem 0 0; color: #787180; font-size: .83rem; }
+  .secondary { margin-top: 2rem; padding-top: 1.7rem; border-top: 1px solid #efecf3; }
+  .field { margin-bottom: 1.4rem; }
+  .field > label { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; font-weight: 600; font-size: .93rem; color: #3e344b; }
+  .field > label span { font-size: .72rem; font-weight: 400; color: #807787; }
+  .submission-page input:not([type="checkbox"]), .submission-page textarea { width: 100%; min-width: 0; padding: .8rem .95rem; border: 1px solid #dcd6e5; border-radius: 10px; background: #fff; color: #332b3e; font: inherit; font-size: 16px; transition: border-color 150ms, box-shadow 150ms; }
+  .submission-page input:not([type="checkbox"]) { min-height: 48px; }
+  .submission-page textarea { resize: vertical; line-height: 1.7; min-height: 145px; }
+  .submission-page input::placeholder, .submission-page textarea::placeholder { color: #918898; }
+  .submission-page input:focus-visible, .submission-page textarea:focus-visible, .submission-page button:focus-visible, .submission-page a:focus-visible, .receipt-lookup summary:focus-visible { outline: 2px solid #8260e5; outline-offset: 3px; }
+  .submission-page input:focus, .submission-page textarea:focus { border-color: #9879e5; box-shadow: 0 0 0 3px #8762db10; }
+  .field-help { font-size: .79rem; line-height: 1.65; color: #77707e; margin: .5rem 0 0; overflow-wrap: anywhere; }
+  .field-help code { background: #f4f1f8; color: #67527d; padding: .1rem .3rem; border-radius: 4px; }
+  .field-meta { display: flex; align-items: baseline; gap: .5rem; justify-content: space-between; }
+  #description-count { white-space: nowrap; color: #81778c; font-size: .75rem; font-variant-numeric: tabular-nums; }
+  .consent { display: flex; gap: .75rem; align-items: flex-start; color: #61586d; font-size: .84rem; line-height: 1.7; margin-top: 1.7rem; cursor: pointer; }
+  .consent input { flex: 0 0 18px; width: 18px; height: 18px; margin: .2rem 0 0; accent-color: #7b5bf5; }
+  .privacy-note { color: #817987; font-size: .76rem; line-height: 1.75; margin: 1rem 0 1.4rem; }
+  .submission-page button { font: inherit; font-size: .88rem; font-weight: 600; padding: .65rem 1rem; min-height: 44px; border-radius: 9px; border: 1px solid #ded4f7; background: #f4efff; color: #6945c1; cursor: pointer; }
+  .submission-page button:hover:not(:disabled) { background: #e9dfff; }
+  .submission-page button:disabled { opacity: .6; cursor: default; }
+  .submission-page .submit-button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 52px; padding: .8rem 1.15rem; background: #7853de; color: #fff; border-color: #7853de; font-size: .97rem; box-shadow: 0 4px 12px #7954da20; }
+  .submission-page .submit-button:hover:not(:disabled) { background: #6842cc; }
+  .submit-note { margin: .75rem 0 0; font-size: .75rem; color: #827a8a; text-align: center; }
+  .bot-field { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .submission-sidebar { position: sticky; top: 95px; min-width: 0; }
+  .addon-preview { background: linear-gradient(145deg, #f5f1ff, #fcfbff); border: 1px solid #e9e1fa; border-radius: 18px; padding: 1.65rem; overflow-wrap: anywhere; }
+  .preview-initial { display: grid; place-items: center; width: 64px; height: 64px; margin: 1.6rem 0 1rem; border-radius: 18px; color: white; font-size: 1.8rem; font-weight: 600; background: linear-gradient(145deg, #8b6cf1, #6d4cbe); box-shadow: 0 6px 16px #7b59c822; }
+  .addon-preview h2 { margin: 0; font-size: 1.23rem; line-height: 1.45; color: #352647; }
+  .preview-author { margin: .35rem 0 1rem; color: #81708f; font-size: .81rem; }
+  .preview-description { font-size: .87rem; line-height: 1.8; color: #746780; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+  .preview-badge { display: inline-block; border: 1px solid #e0d6f2; border-radius: 20px; padding: .2rem .65rem; color: #7b6598; font-size: .7rem; margin-top: .7rem; }
+  .preview-footnote { font-size: .72rem; line-height: 1.6; color: #92859d; margin: 1rem 0 0; }
+  .review-info { padding: 1.5rem .4rem; }
+  .review-info h2 { font-size: 1rem; margin: 0 0 1.2rem; color: #493b59; }
+  .review-info ol { list-style: none; padding: 0; margin: 0; counter-reset: review; }
+  .review-info li { position: relative; padding: 0 0 1.2rem 2rem; counter-increment: review; }
+  .review-info li::before { content: counter(review); position: absolute; left: 0; top: .1rem; width: 22px; height: 22px; display: grid; place-items: center; font-size: .7rem; color: #876aaf; border: 1px solid #ded2ee; border-radius: 50%; }
+  .review-info li strong { display: block; font-size: .82rem; color: #594a67; font-weight: 600; }
+  .review-info li span, .review-info > p { font-size: .78rem; line-height: 1.7; color: #867a90; }
+  .review-info > p { border-top: 1px solid #eee8f4; padding-top: 1rem; margin-bottom: 0; }
+  .notice { background: #fff9e9; border: 1px solid #efe0b5; color: #7d652d; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: .9rem; }
+  .form-error, #status-error { background: #fff4f4; border: 1px solid #f1cccc; color: #9b3434; border-radius: 10px; padding: .9rem 1rem; margin: 1rem 0; font-size: .88rem; overflow-wrap: anywhere; }
+  .submission-status { border: 1px solid #ded2f3; background: #faf7ff; border-radius: 18px; padding: 1.7rem; margin-top: 2rem; scroll-margin-top: 100px; }
+  .submission-status h2 { margin: .4rem 0; font-size: 1.4rem; }
+  .submission-status p { color: #6e5f7c; }
+  .receipt-row { display: flex; align-items: center; gap: .65rem; margin-top: 1.5rem; }
+  .receipt-row label { white-space: nowrap; font-size: .85rem; }
+  .receipt-row input { font-family: monospace !important; font-size: .8rem !important; }
+  .status-actions { display: flex; gap: 1rem; align-items: center; margin-top: 1.25rem; flex-wrap: wrap; }
+  .receipt-lookup { margin-top: 2rem; color: #756187; font-size: .88rem; }
+  .receipt-lookup summary { cursor: pointer; width: fit-content; }
+  .receipt-lookup form { margin-top: 1rem; max-width: 650px; }
+  .receipt-lookup label { display: block; margin-bottom: .5rem; }
+  .receipt-lookup form > div { display: flex; gap: .65rem; }
+  .receipt-lookup button { white-space: nowrap; }
+  @media (max-width: 850px) { .submission-layout { grid-template-columns: minmax(0, 1fr); } .submission-sidebar { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; } }
+  @media (max-width: 540px) { .submission-page { padding: 1.5rem 1rem 3rem; } .submission-header { margin-bottom: 1.7rem; } .submission-form { padding: 1.3rem; border-radius: 16px; } .submission-sidebar { grid-template-columns: 1fr; } .field-meta { flex-wrap: wrap; gap: 0; } .receipt-row { flex-wrap: wrap; } .receipt-row label { flex-basis: 100%; } .receipt-row input { flex: 1; width: 0 !important; } .receipt-lookup form > div { flex-direction: column; } .submission-status { padding: 1.2rem; } }
+  @media (prefers-reduced-motion: reduce) { .submission-page input, .submission-page textarea { transition: none; } }
+</style>

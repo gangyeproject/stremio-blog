@@ -9,6 +9,8 @@ assert.equal(getAddonIcon({ ...addon, cover: { url: '/cover.png' } }), 'https://
 assert.equal(getAddonIcon({ content: 'No image.' }), null);
 assert.equal(getAddonIcon({ content: '![Bad logo](javascript:alert)' }), null);
 assert.equal(getAddonInitials(addon), 'NS');
+assert.equal(getAddonInitials({ sulg: 'community-sample-0123456789ab', title: 'Sample Movies' }), 'S');
+assert.equal(getAddonInitials({ sulg: 'community-addon-0123456789ab', title: '电影' }), '电');
 const prepared = prepareAddonContent(content, image);
 assert.doesNotMatch(prepared, /Source listing|addon\.png/);
 assert.match(prepared, /## Features/);

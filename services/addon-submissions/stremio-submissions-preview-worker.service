@@ -1,0 +1,23 @@
+[Unit]
+Description=Stremio addon submission preview reviewer (no publication)
+After=network-online.target
+
+[Service]
+User=stremio-submissions
+Group=stremio-submissions
+WorkingDirectory=/opt/stremio-submissions
+EnvironmentFile=/opt/stremio-submissions/preview-worker.env
+ExecStart=/opt/stremio-submissions/.venv/bin/python /opt/stremio-submissions/worker.py
+Restart=on-failure
+RestartSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/stremio-submissions-preview
+MemoryMax=384M
+CPUQuota=75%
+
+[Install]
+WantedBy=multi-user.target

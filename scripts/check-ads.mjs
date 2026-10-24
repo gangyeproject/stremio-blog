@@ -39,7 +39,7 @@ function walk(dir) {
       if (attrs['data-ad-slot'] === '7278792318') assert.equal(attrs['data-ad-layout-key'], '-fb+5w+4e-db+86');
       if (attrs['data-ad-slot'] === '9291007289') assert.equal(attrs['data-full-width-responsive'], 'true');
     }
-    const category = name === 'addons/index.html' ? 'Addon list' : name.startsWith('addons/') ? 'Addon detail' : name === 'index.html' || name.startsWith('page/') ? 'Blog list' : 'Blog article';
+    const category = name === 'submit-addon/index.html' ? 'Submission form' : name === 'addons/index.html' ? 'Addon list' : name.startsWith('addons/') ? 'Addon detail' : name === 'index.html' || name.startsWith('page/') ? 'Blog list' : 'Blog article';
     if (category.endsWith('list') && tags.length) {
       const beforeAd = html.slice(0, html.indexOf('<ins'));
       assert.equal((beforeAd.match(/class="(?:blog|addon)-card"/g) || []).length, 3, name + ': feed must follow third card');

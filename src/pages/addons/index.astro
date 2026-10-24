@@ -17,6 +17,7 @@ const categories = getCategoryOptions(addons);
     </div>
 
 
+    <div class="addons-contribute"><span>Built something for Stremio?</span><a href="/blog/submit-addon">Submit an addon <span aria-hidden="true">↗</span></a></div>
     {addons.length > 0 && <form id="addon-filters" class="addon-filters" role="search" aria-label="Find addons" hidden>
       <fieldset class="addon-filters__panel">
         <legend class="addon-filters__legend">Find an addon</legend>
@@ -119,6 +120,11 @@ const categories = getCategoryOptions(addons);
 </script>
 
 <style>
+  .addons-contribute { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .addons-contribute > span { color: var(--text-muted); font-size: .9rem; }
+  .addons-contribute a { display: inline-flex; gap: .8rem; align-items: center; border: 1px solid #dfd5f5; border-radius: 9px; padding: .6rem 1rem; background: #f7f3ff; color: #7049c9; font-size: .87rem; font-weight: 600; text-decoration: none; }
+  .addons-contribute a:hover { background: #eee5ff; }
+  .addons-contribute a:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 3px; }
   .addon-filters {
     margin-bottom: 1.75rem;
   }

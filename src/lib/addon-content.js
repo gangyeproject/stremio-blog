@@ -38,6 +38,9 @@ export function getAddonIcon(addon) {
 }
 
 export function getAddonInitials(addon) {
+  if (/^community-.+-[a-f0-9]{12}$/.test(addon.sulg || '')) {
+    return (Array.from((addon.title || 'Addon').trim())[0] || 'A').toUpperCase();
+  }
   return (addon.sulg || addon.title || 'Addon').split(/[\s-]+/)
     .filter(Boolean).slice(0, 2).map(word => Array.from(word)[0]).join('').toUpperCase();
 }

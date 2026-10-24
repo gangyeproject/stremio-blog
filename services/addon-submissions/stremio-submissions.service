@@ -1,0 +1,22 @@
+[Unit]
+Description=Stremio community addon submission API
+After=network-online.target
+
+[Service]
+User=stremio-submissions
+Group=stremio-submissions
+WorkingDirectory=/opt/stremio-submissions
+EnvironmentFile=/opt/stremio-submissions/production-api.env
+ExecStart=/opt/stremio-submissions/.venv/bin/gunicorn --bind 127.0.0.1:14326 --workers 2 --threads 2 --timeout 30 --limit-request-line 4094 'app:create_app()'
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/stremio-submissions
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target
