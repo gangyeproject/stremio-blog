@@ -3,6 +3,7 @@ export interface Props {
   title: string;
   description?: string;
   image?: string;
+  adsEnabled?: boolean;
   article?: {
     title: string;
     summary?: string;
@@ -11,7 +12,7 @@ export interface Props {
   };
 }
 
-const { title, description = "Troubleshooting, tips, and guides for Stremio addons.", image, article } = Astro.props;
+const { title, description = "Troubleshooting, tips, and guides for Stremio addons.", image, article, adsEnabled = true } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const isArticlePage = !!article;
 
@@ -108,7 +109,7 @@ const breadcrumbJsonLd = {
 
   <link rel="canonical" href={canonicalURL}>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3421131375387199" crossorigin="anonymous"></script>
+  {adsEnabled && <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3421131375387199" crossorigin="anonymous"></script>}
   <script is:inline async src="https://fundingchoicesmessages.google.com/i/pub-3421131375387199?ers=1"></script>
   <script is:inline>
     (function() {

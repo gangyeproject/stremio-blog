@@ -28,7 +28,8 @@ function walk(dir) {
     assert.ok(recoverySignals[0][1].includes("iframe.name = 'googlefcPresent'"), name + ': missing recovery iframe name');
     assert.equal(html.split('function signalGooglefcPresent()').length - 1, 1, name + ': duplicate recovery signal');
     const tags = [...html.matchAll(/<ins\b[^>]*>/g)].map(m => m[0]);
-    assert.equal((html.match(/pagead\/js\/adsbygoogle\.js/g) || []).length, 1, name);
+    assert.equal((html.match(/pagead\/js\/adsbygoogle\.js/g) || []).length, name === 'submit-addon/index.html' ? 0 : 1, name);
+    if (name === 'submit-addon/index.html') assert.equal(tags.length, 0, 'Submission form must not contain ads');
     for (const tag of tags) {
       const attrs = Object.fromEntries([...tag.matchAll(/([\w-]+)="([^"]*)"/g)].map(m => [m[1], m[2]]));
       const specification = expected[attrs['data-ad-slot']];

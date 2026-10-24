@@ -4,7 +4,7 @@ import Layout from '../layouts/Layout.astro';
 const submissionApi = import.meta.env.PUBLIC_SUBMISSIONS_API || 'https://admin.stremioaddonmanager.org/addon-submissions';
 ---
 
-<Layout title="Submit a Stremio Addon | Stremio Addon Manager" description="Share your Stremio addon with the community. Submit a public manifest for validation and AI review.">
+<Layout title="Submit a Stremio Addon | Stremio Addon Manager" description="Share your Stremio addon with the community. Submit a public manifest for validation and AI review." adsEnabled={false}>
   <div class="submission-page">
     <a class="back-link" href="/blog/addons">← Back to addons</a>
     <header class="submission-header">
